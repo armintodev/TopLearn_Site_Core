@@ -1,0 +1,20 @@
+﻿@model User
+@{
+    ViewData["Title"] = "پایان ثبت نام";
+}
+
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ul class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">تاپ لرن</a></li>
+                <li class="breadcrumb-item active" aria-current="page">پایان ثبت نام</li>
+            </ul>
+        </nav>
+    </div>
+
+<div class="alert alert-success">
+    <h2>@Model.UserName عزیز!</h2>
+    <p class="alert alert-info">ثبت نام با موفقیت انجام شد</p>
+    <p class="alert alert-info">ایمیلی حاوی لینک فعال سازی به @Model.Email ارسال شد.</p>
+    <p class="alert alert-info">جهت ادامه ثبت نام وارد ایمیل خود شوید و روی لینک ارسال شده کلیک کنید!</p>
+</div>
