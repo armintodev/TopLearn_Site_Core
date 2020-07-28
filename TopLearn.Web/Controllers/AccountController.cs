@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using TopLearn.Core.Convertors;
 using TopLearn.Core.DTOs;
 using TopLearn.Core.Generator;
 using TopLearn.Core.Security;
+using TopLearn.Core.Senders;
 using TopLearn.Core.Services.Interfaces;
 using TopLearn.DataLayer.Entities.User;
 
@@ -15,9 +19,11 @@ namespace TopLearn.Web.Controllers
     public class AccountController : Controller
     {
         private readonly IUserService _userService;
-        public AccountController(IUserService userService)
+        private readonly IViewRenderService _viewRender;
+        public AccountController(IUserService userService,IViewRenderService viewRender)
         {
             _userService = userService;
+            _viewRender = viewRender;
         }
 
         #region Register
@@ -58,7 +64,11 @@ namespace TopLearn.Web.Controllers
             };
             _userService.AddUser(user);
 
-            //TODO: Send Activation Email ...!
+            #region Send Activation Email
+
+            string body = _viewRender.RenderToStringAsync("_ActiveEmail",user);
+            SendEmail.Sendemail(user.Email,"فعال سازی",body);
+            #endregion
 
             return View("SuccessRegister",user);
         }
@@ -84,7 +94,19 @@ namespace TopLearn.Web.Controllers
             {
                 if(user.IsActive)
                 {
-                    //TODO: Login User ...!
+                    var claims = new List<Claim>()
+                    {
+                        new Claim(ClaimTypes.NameIdentifier,user.UserId.ToString()),
+                        new Claim(ClaimTypes.Name,user.UserName)
+                    };
+                    var identity = new ClaimsIdentity(claims,CookieAuthenticationDefaults.AuthenticationScheme);
+                    var principal = new ClaimsPrincipal(identity);
+                    var properties = new AuthenticationProperties
+                    {
+                        IsPersistent = login.RememberMe
+                    };
+                    HttpContext.SignInAsync(principal,properties);
+
                     ViewBag.IsSuccess = true;
                     return View();
                 }
@@ -95,6 +117,16 @@ namespace TopLearn.Web.Controllers
             }
             ModelState.AddModelError("Email","کاربری با مشخصات وارد شده یافت نشد");
             return View(login);
+        }
+
+        #endregion
+
+        #region Logout
+        [Route("Logout")]
+        public IActionResult Logout()
+        {
+            HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return Redirect("/Login");
         }
 
         #endregion

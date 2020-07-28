@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore;
 using TopLearn.DataLayer.Context;
 using TopLearn.Core.Services.Interfaces;
 using TopLearn.Core.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using TopLearn.Core.Convertors;
 
 namespace TopLearn.Web
 {
@@ -26,6 +28,22 @@ namespace TopLearn.Web
         {
             services.AddMvc(endpoint => endpoint.EnableEndpointRouting = false);
 
+            #region Authentication
+
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                //options.DefaultSignOutScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            }).AddCookie(options =>
+            {
+                options.LoginPath = "/Login";
+                options.LogoutPath = "/Logout";
+                options.ExpireTimeSpan = TimeSpan.FromMinutes(43200);
+            });
+
+            #endregion
 
             #region Database Context
 
@@ -39,28 +57,30 @@ namespace TopLearn.Web
             #region IoC
 
             services.AddTransient<IUserService,UserService>();
+            services.AddTransient<IViewRenderService,RenderViewToString>();
 
             #endregion
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app,IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
+            if(env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseStaticFiles();
+            app.UseAuthentication();
             app.UseRouting();
             app.UseMvcWithDefaultRoute();
-            app.UseStaticFiles();
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapGet("/", async context =>
-                {
-                    await context.Response.WriteAsync("Hello World!");
-                });
+                endpoints.MapGet("/",async context =>
+               {
+                   await context.Response.WriteAsync("Hello World!");
+               });
             });
         }
     }
