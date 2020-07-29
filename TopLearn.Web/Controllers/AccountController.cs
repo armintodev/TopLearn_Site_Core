@@ -141,5 +141,63 @@ namespace TopLearn.Web.Controllers
         }
 
         #endregion
+
+        #region Forgot Password
+
+        [Route("ForgotPassword")]
+        public IActionResult ForgotPassword() => View();
+
+        [HttpPost]
+        [Route("ForgotPassword")]
+        public IActionResult ForgotPassword(ForgotPasswordViewModel forgotPassword)
+        {
+            if(!ModelState.IsValid)
+            {
+                return View(forgotPassword);
+            }
+            var fixEmail = FixedText.FixedEmail(forgotPassword.Email);
+            User user = _userService.GetUserByEmail(fixEmail);
+            if(user == null)
+            {
+                ModelState.AddModelError("Email","کاربری یافت نشد");
+                return View(forgotPassword);
+            }
+            string bodyEmail = _viewRender.RenderToStringAsync("_ForgotPassword",user);
+            SendEmail.Sendemail(user.Email,"بازیابی کلمه عبور",bodyEmail);
+            ViewBag.IsSuccess = true;
+            return View();
+        }
+
+        #endregion
+
+        #region Reset Password
+
+        public IActionResult ResetPassword(string id) => View(new ResetPasswordViewModel()
+        {
+            ActiveCode=id
+        });
+        [HttpPost]
+        public IActionResult ResetPassword(ResetPasswordViewModel resetPassword)
+        {
+            if(!ModelState.IsValid)
+            {
+                return View(resetPassword);
+            }
+
+            User user = _userService.GetUserByActiveCode(resetPassword.ActiveCode);
+
+            if(user==null)
+            {
+                return NotFound();
+            }
+
+            string hashNewPassword = PasswordHelper.EncodePasswordMd5(resetPassword.Password);
+            user.Password = hashNewPassword;
+            _userService.Update(user);
+
+            return Redirect("/Login");
+        }
+
+        #endregion
     }
 }
