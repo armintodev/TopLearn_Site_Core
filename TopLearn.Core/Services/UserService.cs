@@ -19,6 +19,7 @@ namespace TopLearn.Core.Services
         {
             _context = context;
         }
+        #region Identity
         public bool IsExistUserName(string userName)
         {
             return _context.Users.Any(u => u.UserName == userName);
@@ -45,7 +46,7 @@ namespace TopLearn.Core.Services
         public bool ActiveAccount(string activeCode)
         {
             var user = _context.Users.SingleOrDefault(u => u.ActiveCode == activeCode);
-            if(user==null||user.IsActive)
+            if(user == null || user.IsActive)
             {
                 return false;
             }
@@ -71,5 +72,28 @@ namespace TopLearn.Core.Services
             _context.Update(user);
             _context.SaveChanges();
         }
+
+        public User GetUserByUserName(string userName)
+        {
+            return _context.Users.SingleOrDefault(u => u.UserName == userName);
+        }
+
+        #endregion
+
+        #region User Panel
+
+        public InformationUserViewModel GetUserInformation(string userName)
+        {
+            var user = GetUserByUserName(userName);
+            InformationUserViewModel information = new InformationUserViewModel();
+            information.UserName = user.UserName;
+            information.Email = user.Email;
+            information.RegisterDate = user.RegisterDate;
+            information.wallet = 1000;
+            return information;
+        }
+        
+        #endregion
+
     }
 }
