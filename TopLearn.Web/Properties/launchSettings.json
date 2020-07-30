@@ -7,7 +7,7 @@
       "sslPort": 0
     },
     "iisExpress": {
-      "applicationUrl": "http://toplearn:5001",
+      "applicationUrl": "http://localhost:5001",
       "sslPort": 44398
     }
   },

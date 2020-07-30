@@ -92,7 +92,17 @@ namespace TopLearn.Core.Services
             information.wallet = 1000;
             return information;
         }
-        
+
+        public SideBarUserPanelViewModel GetSideBarUserPanelData(string userName)
+        {
+            return _context.Users.Where(u => u.UserName == userName).Select(u => new SideBarUserPanelViewModel
+            {
+                UserName=u.UserName,
+                ImageName=u.UserAvatar,
+                RegisterDate=u.RegisterDate
+            }).Single();
+        }
+
         #endregion
 
     }

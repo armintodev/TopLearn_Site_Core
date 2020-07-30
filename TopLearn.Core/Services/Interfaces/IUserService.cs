@@ -23,6 +23,7 @@ namespace TopLearn.Core.Services.Interfaces
         #region User Panel
 
         InformationUserViewModel GetUserInformation(string userName);
+        SideBarUserPanelViewModel GetSideBarUserPanelData(string userName);
 
         #endregion
     }
