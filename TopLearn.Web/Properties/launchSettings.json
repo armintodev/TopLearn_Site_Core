@@ -19,17 +19,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "use64Bit": true,
-      "applicationUrl": "http://toplearn.test"
-    },
-    "TopLearn.Web": {
-      "commandName": "Project",
-      "launchBrowser": true,
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      },
-      "sqlDebugging": false,
-      "nativeDebugging": false,
-      "applicationUrl": "http://localhost:5001;http://localhost:5001"
+      "applicationUrl": "http://localhost:44398"
     },
     "Azure Dev Spaces": {
       "commandName": "AzureDevSpaces",

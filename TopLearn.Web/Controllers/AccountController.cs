@@ -18,13 +18,16 @@ namespace TopLearn.Web.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly IUserService _userService;
-        private readonly IViewRenderService _viewRender;
-        public AccountController(IUserService userService,IViewRenderService viewRender)
+        private IUserService _userService;
+        private IViewRenderService _viewRender;
+
+        public AccountController(IUserService userService, IViewRenderService viewRender)
         {
             _userService = userService;
             _viewRender = viewRender;
         }
+
+
 
         #region Register
         [Route("Register")]
@@ -36,18 +39,18 @@ namespace TopLearn.Web.Controllers
         [Route("Register")]
         public IActionResult Register(RegisterViewModel register)
         {
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return View(register);
             }
-            if(_userService.IsExistUserName(register.UserName))
+            if (_userService.IsExistUserName(register.UserName))
             {
-                ModelState.AddModelError("UserName","نام کاربری معتبر نمی باشد");
+                ModelState.AddModelError("UserName", "نام کاربری معتبر نمی باشد");
                 return View(register);
             }
-            if(_userService.IsExistEmail(FixedText.FixedEmail(register.Email)))
+            if (_userService.IsExistEmail(FixedText.FixedEmail(register.Email)))
             {
-                ModelState.AddModelError("Email","ایمیل معتبر نمی باشد");
+                ModelState.AddModelError("Email", "ایمیل معتبر نمی باشد");
                 return View(register);
             }
 
@@ -66,11 +69,11 @@ namespace TopLearn.Web.Controllers
 
             #region Send Activation Email
 
-            string body = _viewRender.RenderToStringAsync("_ActiveEmail",user);
-            SendEmail.Sendemail(user.Email,"فعال سازی",body);
+            string body = _viewRender.RenderToStringAsync("_ActiveEmail", user);
+            SendEmail.Sendemail(user.Email, "فعال سازی", body);
             #endregion
 
-            return View("SuccessRegister",user);
+            return View("SuccessRegister", user);
         }
         #endregion
 
@@ -85,37 +88,37 @@ namespace TopLearn.Web.Controllers
         public IActionResult Login(LoginViewModel login)
         {
 
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return View(login);
             }
             var user = _userService.LoginUser(login);
-            if(user != null)
+            if (user != null)
             {
-                if(user.IsActive)
+                if (user.IsActive)
                 {
                     var claims = new List<Claim>()
                     {
                         new Claim(ClaimTypes.NameIdentifier,user.UserId.ToString()),
                         new Claim(ClaimTypes.Name,user.UserName)
                     };
-                    var identity = new ClaimsIdentity(claims,CookieAuthenticationDefaults.AuthenticationScheme);
+                    var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                     var principal = new ClaimsPrincipal(identity);
                     var properties = new AuthenticationProperties
                     {
                         IsPersistent = login.RememberMe
                     };
-                    HttpContext.SignInAsync(principal,properties);
+                    HttpContext.SignInAsync(principal, properties);
 
                     ViewBag.IsSuccess = true;
                     return View();
                 }
                 else
                 {
-                    ModelState.AddModelError("Email","حساب کاربری شما فعال نمی باشد");
+                    ModelState.AddModelError("Email", "حساب کاربری شما فعال نمی باشد");
                 }
             }
-            ModelState.AddModelError("Email","کاربری با مشخصات وارد شده یافت نشد");
+            ModelState.AddModelError("Email", "کاربری با مشخصات وارد شده یافت نشد");
             return View(login);
         }
 
@@ -151,19 +154,19 @@ namespace TopLearn.Web.Controllers
         [Route("ForgotPassword")]
         public IActionResult ForgotPassword(ForgotPasswordViewModel forgotPassword)
         {
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return View(forgotPassword);
             }
             var fixEmail = FixedText.FixedEmail(forgotPassword.Email);
             User user = _userService.GetUserByEmail(fixEmail);
-            if(user == null)
+            if (user == null)
             {
-                ModelState.AddModelError("Email","کاربری یافت نشد");
+                ModelState.AddModelError("Email", "کاربری یافت نشد");
                 return View(forgotPassword);
             }
-            string bodyEmail = _viewRender.RenderToStringAsync("_ForgotPassword",user);
-            SendEmail.Sendemail(user.Email,"بازیابی کلمه عبور",bodyEmail);
+            string bodyEmail = _viewRender.RenderToStringAsync("_ForgotPassword", user);
+            SendEmail.Sendemail(user.Email, "بازیابی کلمه عبور", bodyEmail);
             ViewBag.IsSuccess = true;
             return View();
         }
@@ -174,19 +177,19 @@ namespace TopLearn.Web.Controllers
 
         public IActionResult ResetPassword(string id) => View(new ResetPasswordViewModel()
         {
-            ActiveCode=id
+            ActiveCode = id
         });
         [HttpPost]
         public IActionResult ResetPassword(ResetPasswordViewModel resetPassword)
         {
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return View(resetPassword);
             }
 
             User user = _userService.GetUserByActiveCode(resetPassword.ActiveCode);
 
-            if(user==null)
+            if (user == null)
             {
                 return NotFound();
             }
