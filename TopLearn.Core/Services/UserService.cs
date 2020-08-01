@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using TopLearn.Core.Convertors;
@@ -46,7 +47,7 @@ namespace TopLearn.Core.Services
         public bool ActiveAccount(string activeCode)
         {
             var user = _context.Users.SingleOrDefault(u => u.ActiveCode == activeCode);
-            if(user == null || user.IsActive)
+            if (user == null || user.IsActive)
             {
                 return false;
             }
@@ -97,10 +98,48 @@ namespace TopLearn.Core.Services
         {
             return _context.Users.Where(u => u.UserName == userName).Select(u => new SideBarUserPanelViewModel
             {
-                UserName=u.UserName,
-                ImageName=u.UserAvatar,
-                RegisterDate=u.RegisterDate
+                UserName = u.UserName,
+                ImageName = u.UserAvatar,
+                RegisterDate = u.RegisterDate
             }).Single();
+        }
+
+        public EditProfileViewModel GetDataForEditProfileUser(string userName) => _context.Users
+            .Where(u => u.UserName == userName).Select(u => new EditProfileViewModel()
+            {
+                UserName = u.UserName,
+                Email = u.Email,
+                AvatarName = u.UserAvatar
+            }).Single();
+
+        public void EditProfile(string userName, EditProfileViewModel profile)
+        {
+            if (profile.UserAvatar != null)
+            {
+                string imagepath = "";
+                if (profile.AvatarName != "Default.jpg")
+                {
+                    imagepath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/UserAvatar", profile.AvatarName);
+                    if (File.Exists(imagepath))
+                    {
+                        File.Delete(imagepath);
+                    }
+                }
+
+                profile.AvatarName= NameGenerator.GenerateUniqCode() + Path.GetExtension(profile.UserAvatar.FileName);
+                imagepath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/UserAvatar", profile.AvatarName);
+                using (var stream = new FileStream(imagepath, FileMode.Create))
+                {
+                    profile.UserAvatar.CopyTo(stream);
+                }
+            }
+
+            var user = GetUserByUserName(userName);
+            user.UserName = profile.UserName;
+            user.Email = profile.Email;
+            user.UserAvatar = profile.AvatarName;
+
+            Update(user);
         }
 
         #endregion

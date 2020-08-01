@@ -1,0 +1,60 @@
+﻿@model EditProfileViewModel
+@{
+    ViewData["Title"] = "ویرایش حساب کاربری";
+}
+
+<div class="container">
+    <nav aria-label="breadcrumb">
+        <ul class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">تاپ لرن</a></li>
+            <li class="breadcrumb-item active" aria-current="page"> پنل کاربری </li>
+        </ul>
+    </nav>
+</div>
+<main>
+    <div class="container">
+        <div class="user-account">
+            <div class="row">
+                <!--sidebar panel start-->
+                <partial name="_SideBar" />
+                <!--sidebar panel end-->
+                <div class="col-md-9 col-sm-8 col-xs-12">
+                    <section class="user-account-content">
+                        <header><h1> ویرایش حساب کاربری </h1></header>
+                        <div class="inner form-layer">
+                            <form asp-action="EditProfile" method="post" enctype="multipart/form-data">
+                              
+                                <input type="hidden" asp-for="AvatarName"/>
+                                <div class="row">
+                                    <div class="col-md-7 col-sm-8 col-xs-12">
+                                        <div class="input-group">
+                                            <span class="input-group-addon" id="username"><i class="zmdi zmdi-account"></i></span>
+                                            <input asp-for="UserName" type="text" class="form-control" placeholder="نام کاربری" aria-describedby="username">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7 col-sm-8 col-xs-12">
+                                        <div class="input-group">
+                                            <span class="input-group-addon" id="email-address"><i class="zmdi zmdi-email"></i></span>
+                                            <input asp-for="Email" type="text" class="form-control" placeholder="ایمیل" aria-describedby="email-address">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7 col-sm-8 col-xs-12">
+                                        <div class="input-group">
+                                            <span class="input-group-addon"><i class="zmdi zmdi-image"></i></span>
+                                            <input asp-for="UserAvatar" type="file" class="form-control">
+                                        </div>
+                                        <img class="thumbnail" src="/UserAvatar/@Model.AvatarName" style="max-width: 150px" />
+                                    </div>
+                                    <div class="col-md-7 col-sm-8 col-xs-12">
+                                        <button class="btn btn-success"> ویرایش اطلاعات </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
