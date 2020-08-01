@@ -142,6 +142,19 @@ namespace TopLearn.Core.Services
             Update(user);
         }
 
+        public bool CompareOldPassword(string oldPassword, string userName)
+        {
+            string hashOldPassword = PasswordHelper.EncodePasswordMd5(oldPassword);
+            return _context.Users.Any(u => u.UserName == userName && u.Password == hashOldPassword);
+        }
+
+        public void ChangeUserPassword(string userName, string newPassword)
+        {
+            var user = GetUserByUserName(userName);
+            user.Password = PasswordHelper.EncodePasswordMd5(newPassword);
+            Update(user);
+        }
+
         #endregion
 
     }

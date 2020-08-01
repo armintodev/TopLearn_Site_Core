@@ -5,13 +5,13 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace TopLearn.Web.Handlers
+namespace TopLearn.Web.Controllers
 {
     public class HomeController : Controller
     {
         public IActionResult Index() => View();
 
-        [Authorize]
-        public IActionResult Test() => View();
+        //[Authorize]
+        //public IActionResult Test() => View();
     }
 }

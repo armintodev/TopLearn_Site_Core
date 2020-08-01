@@ -26,6 +26,8 @@ namespace TopLearn.Core.Services.Interfaces
         SideBarUserPanelViewModel GetSideBarUserPanelData(string userName);
         EditProfileViewModel GetDataForEditProfileUser(string userName);
         void EditProfile(string userName,EditProfileViewModel profile);
+        bool CompareOldPassword(string oldPassword, string userName);
+        void ChangeUserPassword(string userName, string newPassword);
 
         #endregion
     }
