@@ -5,6 +5,7 @@ using System.Text;
 
 namespace TopLearn.DataLayer.Entities.User
 {
+    using TopLearn.DataLayer.Entities.Wallet;
     public class User
     {
 
@@ -49,7 +50,7 @@ namespace TopLearn.DataLayer.Entities.User
         #region Relations
 
         public virtual List<UserRole> UserRoles { get; set; }
-
+        public virtual List<Wallet> Wallet { get; set; }
         #endregion
     }
 }
