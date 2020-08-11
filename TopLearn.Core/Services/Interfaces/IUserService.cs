@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using TopLearn.Core.DTOs;
 using TopLearn.DataLayer.Entities.User;
+using TopLearn.DataLayer.Entities.Wallet;
 
 namespace TopLearn.Core.Services.Interfaces
 {
@@ -18,6 +19,7 @@ namespace TopLearn.Core.Services.Interfaces
         User GetUserByUserName(string userName);
         void Update(User user);
         bool ActiveAccount(string activeCode);
+        int GetUserIdByUserName(string userName);
         #endregion
 
         #region User Panel
@@ -28,6 +30,15 @@ namespace TopLearn.Core.Services.Interfaces
         void EditProfile(string userName,EditProfileViewModel profile);
         bool CompareOldPassword(string oldPassword, string userName);
         void ChangeUserPassword(string userName, string newPassword);
+
+        #endregion
+
+        #region Wallet
+
+        int BalanceUserWallet(string userName);
+        List<WalletViewModel> GetWalletUser(string userName);
+        void ChargeWallet(string userName, int amount,string description, bool isPay = false);
+        void AddWallet(Wallet wallet);
 
         #endregion
     }
