@@ -66,5 +66,7 @@ namespace TopLearn.Web.Areas.UserPanel.Controllers
             ViewBag.IsSuccess = true;
             return View(change);
         }
+
+        
     }
 }
