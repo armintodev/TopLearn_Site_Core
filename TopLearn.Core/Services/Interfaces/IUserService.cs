@@ -27,7 +27,7 @@ namespace TopLearn.Core.Services.Interfaces
         InformationUserViewModel GetUserInformation(string userName);
         SideBarUserPanelViewModel GetSideBarUserPanelData(string userName);
         EditProfileViewModel GetDataForEditProfileUser(string userName);
-        void EditProfile(string userName,EditProfileViewModel profile);
+        void EditProfile(string userName, EditProfileViewModel profile);
         bool CompareOldPassword(string oldPassword, string userName);
         void ChangeUserPassword(string userName, string newPassword);
 
@@ -37,10 +37,16 @@ namespace TopLearn.Core.Services.Interfaces
 
         int BalanceUserWallet(string userName);
         List<WalletViewModel> GetWalletUser(string userName);
-        int ChargeWallet(string userName, int amount,string description, bool isPay = false);
+        int ChargeWallet(string userName, int amount, string description, bool isPay = false);
         int AddWallet(Wallet wallet);
         Wallet GetWalletByWalletId(int walletId);
         void UpdateWallet(Wallet wallet);
+
+        #endregion
+
+        #region Admin Panel
+
+        UserForAdminViewModel GetUsers(int pageId = 1, string filterEmail = "", string filterUserName = "");
 
         #endregion
     }
