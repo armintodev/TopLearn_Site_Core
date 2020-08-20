@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Microsoft.EntityFrameworkCore;
 using TopLearn.Core.Convertors;
 using TopLearn.Core.DTOs;
 using TopLearn.Core.Generator;
@@ -64,6 +65,11 @@ namespace TopLearn.Core.Services
             return _context.Users.SingleOrDefault(u => u.Email == email);
         }
 
+        public User GetUserById(int userId)
+        {
+            return _context.Users.Find(userId);
+        }
+
         public User GetUserByActiveCode(string activeCode)
         {
             return _context.Users.SingleOrDefault(u => u.ActiveCode == activeCode);
@@ -80,7 +86,12 @@ namespace TopLearn.Core.Services
             return _context.Users.SingleOrDefault(u => u.UserName == userName);
         }
         public int GetUserIdByUserName(string userName) => _context.Users.Single(u => u.UserName == userName).UserId;
-
+        public void DeleteUser(int userId)
+        {
+            User user = GetUserById(userId);
+            user.IsDelete = true;
+            Update(user);
+        }
 
         #endregion
 
@@ -94,6 +105,17 @@ namespace TopLearn.Core.Services
             information.Email = user.Email;
             information.RegisterDate = user.RegisterDate;
             information.wallet = BalanceUserWallet(userName);
+            return information;
+        }
+
+        public InformationUserViewModel GetUserInformation(int userId)
+        {
+            var user = GetUserById(userId);
+            InformationUserViewModel information = new InformationUserViewModel();
+            information.UserName = user.UserName;
+            information.Email = user.Email;
+            information.RegisterDate = user.RegisterDate;
+            information.wallet = BalanceUserWallet(user.UserName);
             return information;
         }
 
@@ -171,7 +193,7 @@ namespace TopLearn.Core.Services
             int userId = GetUserIdByUserName(userName);
 
 
-            var enter = _context.Wallets.Where(w => w.UserId == userId && w.TypeId == 1&&w.IsPay)
+            var enter = _context.Wallets.Where(w => w.UserId == userId && w.TypeId == 1 && w.IsPay)
                 .Select(w => w.Amount).ToList();
 
             var exit = _context.Wallets.Where(w => w.UserId == userId && w.TypeId == 2)
@@ -195,16 +217,16 @@ namespace TopLearn.Core.Services
 
         public int ChargeWallet(string userName, int amount, string description, bool isPay = false)
         {
-            Wallet wallet=new Wallet()
+            Wallet wallet = new Wallet()
             {
-                Amount= amount,
+                Amount = amount,
                 CreateDate = DateTime.Now,
                 Description = description,
                 IsPay = isPay,
                 TypeId = 1,
                 UserId = GetUserIdByUserName(userName)
             };
-           return AddWallet(wallet);
+            return AddWallet(wallet);
         }
 
         public int AddWallet(Wallet wallet)
@@ -247,7 +269,7 @@ namespace TopLearn.Core.Services
             int skip = (pageId - 1) * take;
 
 
-            UserForAdminViewModel list=new UserForAdminViewModel();
+            UserForAdminViewModel list = new UserForAdminViewModel();
             list.CurrentPage = pageId;
             list.PageCount = result.Count() / take;
             list.Users = result.OrderBy(u => u.RegisterDate).Skip(skip).Take(take).ToList();
@@ -255,6 +277,117 @@ namespace TopLearn.Core.Services
 
             return list;
 
+        }
+
+        public UserForAdminViewModel GetDeleteUsers(int pageId = 1, string filterEmail = "", string filterUserName = "")
+        {
+            IQueryable<User> result = _context.Users.IgnoreQueryFilters().Where(u=>u.IsDelete);
+
+            if (!string.IsNullOrEmpty(filterEmail))
+            {
+                result = result.Where(u => u.Email.Contains(filterEmail));
+            }
+
+            if (!string.IsNullOrEmpty(filterUserName))
+            {
+                result = result.Where(u => u.UserName.Contains(filterUserName));
+            }
+
+            //Show Item in Page
+            int take = 20;
+            int skip = (pageId - 1) * take;
+
+
+            UserForAdminViewModel list = new UserForAdminViewModel();
+            list.CurrentPage = pageId;
+            list.PageCount = result.Count() / take;
+            list.Users = result.OrderBy(u => u.RegisterDate).Skip(skip).Take(take).ToList();
+
+
+            return list;
+
+        }
+
+        public int AddUserFromAdmin(CreateUserViewModel user)
+        {
+            User addUser = new User();
+            addUser.Password = PasswordHelper.EncodePasswordMd5(user.Password);
+            addUser.ActiveCode = NameGenerator.GenerateUniqCode();
+            addUser.UserName = user.UserName;
+            addUser.Email = user.Email;
+            addUser.IsActive = true;
+            addUser.RegisterDate = DateTime.Now;
+
+            #region Save Avatar
+
+            if (user.UserAvatar != null)
+            {
+                string imagePath = "";
+                addUser.UserAvatar = NameGenerator.GenerateUniqCode() + Path.GetExtension(user.UserAvatar.FileName);
+
+                imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/UserAvatar/" + addUser.UserAvatar);
+                using (var stream = new FileStream(imagePath, FileMode.Create))
+                {
+                    user.UserAvatar.CopyTo(stream);
+                }
+            }
+
+            #endregion
+
+            return AddUser(addUser);
+
+        }
+
+        public EditUserViewModel GetUserForShowInEditModel(int userId)
+        {
+            return _context.Users.Where(u=>u.UserId==userId).Select(u=>new EditUserViewModel()
+            {
+                UserId = u.UserId,
+                AvatarName = u.UserAvatar,
+                Email = u.Email,
+                UserName = u.UserName,
+                UserRoles = u.UserRoles.Select(r=>r.RoleId).ToList()
+            }).Single();
+        }
+
+        public void EditUserFromAdmin(EditUserViewModel editUser)
+        {
+            User user = GetUserById(editUser.UserId);
+            user.Email = editUser.Email;
+            if (!string.IsNullOrEmpty(editUser.Password))
+            {
+                user.Password = PasswordHelper.EncodePasswordMd5(editUser.Password);
+            }
+
+            if (editUser.UserAvatar!=null)
+            {
+                //Delete Old Image
+                if (editUser.AvatarName!="Default.jpg")
+                {
+                    string deletePath= Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/UserAvatar/" + editUser.AvatarName);
+                    if (File.Exists(deletePath))
+                    {
+                        File.Delete(deletePath);
+                    }
+                }
+                #region Save New Avatar
+
+                if (user.UserAvatar != null)
+                {
+                    user.UserAvatar = NameGenerator.GenerateUniqCode() + Path.GetExtension(editUser.UserAvatar.FileName);
+
+                   string imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/UserAvatar/" + user.UserAvatar);
+                    using (var stream = new FileStream(imagePath, FileMode.Create))
+                    {
+                        editUser.UserAvatar.CopyTo(stream);
+                    }
+                }
+
+                #endregion
+
+                _context.Users.Update(user);
+                _context.SaveChanges();
+            }
         }
 
         #endregion
