@@ -60,10 +60,10 @@ namespace TopLearn.Core.Services
         public void EditRolesUser(int userId, List<int> rolesId)
         {
             //Delete All Roles User
-            _context.UserRoles.Where(r=>r.UserId==userId).ToList().ForEach(r=>_context.UserRoles.Remove(r));
+            _context.UserRoles.Where(r => r.UserId == userId).ToList().ForEach(r => _context.UserRoles.Remove(r));
 
             //Add New Roles
-            AddRolesToUser(rolesId,userId);
+            AddRolesToUser(rolesId, userId);
         }
 
         public List<Permission> GetAllPermission()
@@ -94,10 +94,29 @@ namespace TopLearn.Core.Services
 
         public void UpdatePermissionsRole(int roleId, List<int> permissions)
         {
-            _context.RolePermission.Where(p=>p.RoleId==roleId)
-                .ToList().ForEach(p=>_context.RolePermission.Remove(p));
+            _context.RolePermission.Where(p => p.RoleId == roleId)
+                .ToList().ForEach(p => _context.RolePermission.Remove(p));
 
-            AddPermissionsToRole(roleId,permissions);
+            AddPermissionsToRole(roleId, permissions);
+        }
+
+        public bool CheckPermission(int permissionId, string userName)
+        {
+            int userId = _context.Users.Single(u => u.UserName == userName).UserId;
+
+            List<int> UserRoles = _context.UserRoles
+                .Where(u => u.UserId == userId)
+                .Select(r => r.RoleId).ToList();
+            if (!UserRoles.Any())
+            {
+                return false;
+            }
+
+            List<int> RolePermission = _context.RolePermission
+                .Where(p => p.PermissionId == permissionId)
+                .Select(r => r.RoleId).ToList();
+
+            return RolePermission.Any(p => UserRoles.Contains(p));
         }
     }
 }

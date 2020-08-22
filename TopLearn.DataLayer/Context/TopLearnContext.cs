@@ -2,6 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+
+
+using TopLearn.DataLayer.Entities.Course;
 using TopLearn.DataLayer.Entities.Permissions;
 using TopLearn.DataLayer.Entities.User;
 using TopLearn.DataLayer.Entities.Wallet;
@@ -39,6 +42,12 @@ namespace TopLearn.DataLayer.Context
 
         #endregion
 
+        #region Course
+
+            public DbSet<CourseGroup> CourseGroups { get; set; }
+
+        #endregion
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -46,6 +55,8 @@ namespace TopLearn.DataLayer.Context
                 .HasQueryFilter(q=>!q.IsDelete);
             modelBuilder.Entity<Role>()
                 .HasQueryFilter(r => !r.IsDelete);
+            modelBuilder.Entity<CourseGroup>()
+                        .HasQueryFilter(g => !g.IsDelete);
             base.OnModelCreating(modelBuilder);
         }
     }

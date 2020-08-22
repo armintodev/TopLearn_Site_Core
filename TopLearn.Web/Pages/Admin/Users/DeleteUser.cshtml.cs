@@ -5,10 +5,12 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using TopLearn.Core.DTOs;
+using TopLearn.Core.Security;
 using TopLearn.Core.Services.Interfaces;
 
 namespace TopLearn.Web.Pages.Admin.Users
 {
+    [PermissionChecker(5)]
     public class DeleteUserModel : PageModel
     {
         private IUserService _userService;

@@ -60,8 +60,9 @@ namespace TopLearn.Web
             services.AddTransient<IUserService,UserService>();
             services.AddTransient<IViewRenderService,RenderViewToString>();
             services.AddTransient<IPermissionService, PermissionService>();
+            services.AddTransient<ICourseService, CourseService>();
 
-            #endregion
+        #endregion
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

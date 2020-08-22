@@ -25,13 +25,13 @@
                     </div>
                     <div class="col-sm-6 col-xs-12">
                         <div class="clientarea">
-                            @if(User.Identity.IsAuthenticated)
+                            @if (User.Identity.IsAuthenticated)
                             {
-                            <div class="loggein">
-                                <i class="zmdi zmdi-account"></i><a href="/UserPanel">@User.Identity.Name خوش آمدید</a>
-                                /
-                                <a href="/Logout"> خروج </a>
-                            </div>
+                                <div class="loggein">
+                                    <i class="zmdi zmdi-account"></i><a href="/UserPanel">@User.Identity.Name خوش آمدید</a>
+                                    /
+                                    <a href="/Logout"> خروج </a>
+                                </div>
                             }
                             else
                             {
@@ -46,13 +46,13 @@
                     </div>
                 </div>
             </nav>
-            @RenderSection("SearchBox",false)
+            @RenderSection("SearchBox", false)
         </div>
     </div>
 
-    <!-- main manu -->
-    <partial name="_MainMenu" />
-    <!-- /main manu -->
+    <!-- main menu -->
+    @await Component.InvokeAsync("CourseGroupComponent")
+    <!-- /main menu -->
     <!-- content -->
     @RenderBody()
     <!-- /content -->
