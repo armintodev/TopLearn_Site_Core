@@ -11,9 +11,9 @@ using TopLearn.DataLayer.Entities.Wallet;
 
 namespace TopLearn.DataLayer.Context
 {
-   public class TopLearnContext:DbContext
+    public class TopLearnContext : DbContext
     {
-        public TopLearnContext(DbContextOptions<TopLearnContext> options):base(options)
+        public TopLearnContext(DbContextOptions<TopLearnContext> options) : base(options)
         {
 
         }
@@ -43,8 +43,14 @@ namespace TopLearn.DataLayer.Context
         #endregion
 
         #region Course
+        public DbSet<CourseGroup> CourseGroups { get; set; }
+        public DbSet<Course> Courses { get; set; }
 
-            public DbSet<CourseGroup> CourseGroups { get; set; }
+        public DbSet<CourseLevel> CourseLevels { get; set; }
+        public DbSet<CourseStatus> CourseStatuses { get; set; }
+
+        public DbSet<CourseEpisode> CourseEpisodes { get; set; }
+
 
         #endregion
 
@@ -52,7 +58,7 @@ namespace TopLearn.DataLayer.Context
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<User>()
-                .HasQueryFilter(q=>!q.IsDelete);
+                .HasQueryFilter(q => !q.IsDelete);
             modelBuilder.Entity<Role>()
                 .HasQueryFilter(r => !r.IsDelete);
             modelBuilder.Entity<CourseGroup>()
