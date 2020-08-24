@@ -1,0 +1,111 @@
+﻿@page
+@model TopLearn.Web.Pages.Admin.Courses.CreateCourseModel
+@{
+    ViewData["Title"] = "افزودن دوره جدید";
+}
+<div class="row">
+    <form method="post" enctype="multipart/form-data">
+        <h2>اطلاعات دوره</h2>
+        <hr />
+        <div class="col-md-8">
+            <div class="form-group">
+                <label>عنوان دوره</label>
+                <input type="text" asp-for="Course.CourseTitle" class="form-control">
+                <span asp-validation-for="Course.CourseTitle" class="field-validation-error"></span>
+            </div>
+            <div class="form-group">
+                <label>گروه اصلی</label>
+                <select class="form-control" asp-for="Course.GroupId" asp-items="@ViewData["Groups"] as SelectList"></select>
+                <span asp-validation-for="Course.GroupId" class="field-validation-error"></span>
+            </div>
+            <div class="form-group">
+                <label>زیر گروه</label>
+                <select class="form-control" asp-for="Course.SubGroup" asp-items="@ViewData["SubGroups"] as SelectList"></select>
+                <span asp-validation-for="Course.SubGroup" class="field-validation-error"></span>
+            </div>
+            <div class="form-group">
+                <label>مدرس دوره</label>
+                <select class="form-control" asp-for="Course.TeacherId" asp-items="@ViewData["Teachers"] as SelectList"></select>
+                <span asp-validation-for="Course.TeacherId" class="field-validation-error"></span>
+            </div>
+            <div class="form-group">
+                <label>شرح دوره</label>
+                <textarea class="form-control" asp-for="Course.CourseDescription" rows="10"></textarea>
+                <span asp-validation-for="Course.CourseDescription" class="field-validation-error"></span>
+            </div>
+            <div class="form-group">
+                <label>قیمت دوره</label>
+                <input type="number" asp-for="Course.CoursePrice" value="0" class="form-control" />
+                <span asp-validation-for="Course.CoursePrice" class="field-validation-error"></span>
+            </div>
+            <div class="form-group">
+                <label>فایل دمو دوره</label>
+                <input type="file" name="demoUp">
+                <span asp-validation-for="Course.DemoFileName" class="field-validation-error"></span>
+            </div>
+            <div class="form-group">
+                <label>کلمات کلیدی</label>
+                <input type="text" asp-for="Course.Tags" class="form-control">
+                <p class="help-block">کلمات را با - جدا کنید</p>
+                <span asp-validation-for="Course.Tags" class="field-validation-error"></span>
+            </div>
+            <input type="submit" value="ذخیره اطلاعات" class="btn btn-success" />
+        </div>
+        <div class="col-md-4">
+            <img id="imgCourse" class="thumbnail" src="/UserAvatar/Default.jpg" />
+            <div class="form-group">
+                <label>انتخاب تصویر</label>
+                <input type="file" name="imgCourseUp" id="imgCourseUp">
+            </div>
+            <div class="form-group">
+                <label>سطح دوره</label>
+                <select class="form-control" asp-for="Course.LevelId" asp-items="@ViewData["Levels"] as SelectList"></select>
+                <span asp-validation-for="Course.LevelId" class="field-validation-error"></span>
+            </div>
+            <div class="form-group">
+                <label>وضعیت دوره</label>
+                <select class="form-control" asp-for="Course.StatusId" asp-items="@ViewData["Statues"] as SelectList"></select>
+                <span asp-validation-for="Course.StatusId" class="field-validation-error"></span>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts
+{
+    <script>
+        $("#Course_GroupId").change(function () {
+            $("#Course_SubGroup").empty();
+            $.getJSON("/home/GetSubGroups/" + $("#Course_GroupId :selected").val(),
+                function (data) {
+
+                    $.each(data,
+                        function () {
+                            $("#Course_SubGroup").append('<option value=' + this.value + '>' + this.text + '</option>');
+
+                        });
+
+                });
+
+
+        });
+
+
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    $('#imgCourse').attr('src', e.target.result);
+                }
+
+                reader.readAsDataURL(input.files[0]);
+
+            }
+        }
+
+        $("#imgCourseUp").change(function () {
+            readURL(this);
+        });
+    </script>
+}
